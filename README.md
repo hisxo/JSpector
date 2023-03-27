@@ -8,7 +8,7 @@ Before installing JSpector, you need to have Jython installed on Burp Suite.
 
 ## Installation
 
-1.  Download the latest version of JSpector
+1.  Download [the latest version](https://github.com/hisxo/JSpector/releases) of JSpector
 2.  Open Burp Suite and navigate to the `Extensions` tab.
 3.  Click the `Add` button in the `Installed` tab.
 4.  In the `Extension Details` dialog box, select `Python` as the `Extension Type`.

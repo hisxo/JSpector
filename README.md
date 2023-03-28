@@ -2,6 +2,8 @@
 
 JSpector is a Burp Suite extension that passively crawls JavaScript files and automatically creates issues with URLs and endpoints found on the JS files.
 
+![image](https://user-images.githubusercontent.com/16657045/228315561-ee2fa437-5020-45c2-99b2-6ee8cd71f880.png)
+
 ## Prerequisites
 
 Before installing JSpector, you need to have Jython installed on Burp Suite.

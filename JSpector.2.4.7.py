@@ -79,15 +79,86 @@ class BurpExtender(IBurpExtender, IHttpListener, IScannerListener, IExtensionSta
         self._invocation = invocation
         menu_items = ArrayList()
 
-        menu_item1 = JMenuItem("JSpector - Start passive crawl",
-                               actionPerformed=self.start_passive_crawl)
+        menu_item1 = JMenuItem("Export URLs to clipboard",
+                                actionPerformed=self.export_urls_to_clipboard)
         menu_items.add(menu_item1)
 
-        menu_item2 = JMenuItem("JSpector - Export results to clipboard",
-                               actionPerformed=self.export_results_to_clipboard)
+        menu_item2 = JMenuItem("Export endpoints to clipboard",
+                                actionPerformed=self.export_endpoints_to_clipboard)
         menu_items.add(menu_item2)
 
+        menu_item3 = JMenuItem("Export all results to clipboard",
+                                actionPerformed=self.export_results_to_clipboard)
+        menu_items.add(menu_item3)
+
         return menu_items
+
+    def export_urls_to_clipboard(self, event):
+        messages = self._invocation.getSelectedMessages()
+        if messages is None:
+            JOptionPane.showMessageDialog(None, "No JS file selected.")
+            return
+
+        all_results = ""
+
+        for message in messages:
+            if self._callbacks.isInScope(message.getUrl()):
+                js_url = message.getUrl().toString()
+                if js_url in self._scanned_js_files:
+                    response = message.getResponse()
+                    if response:
+                        response_info = self._helpers.analyzeResponse(response)
+                        headers = response_info.getHeaders()
+
+                        content_type = next((header.split(':', 1)[1].strip() for header in headers if header.lower().startswith('content-type:')), None)
+
+                        if content_type and 'javascript' in content_type.lower():
+                            body = response[response_info.getBodyOffset():]
+                            urls = self.extract_urls_from_js(body)
+                            if urls:
+                                urls_list, _ = self.sort_urls_endpoints(urls)
+                                for url in urls_list:
+                                    all_results += url + "\n"
+
+        self.copy_results_to_clipboard(all_results)
+
+    def export_endpoints_to_clipboard(self, event):
+        messages = self._invocation.getSelectedMessages()
+        if messages is None:
+            JOptionPane.showMessageDialog(None, "No JS file selected.")
+            return
+
+        all_results = ""
+
+        for message in messages:
+            if self._callbacks.isInScope(message.getUrl()):
+                js_url = message.getUrl().toString()
+                if js_url in self._scanned_js_files:
+                    response = message.getResponse()
+                    if response:
+                        response_info = self._helpers.analyzeResponse(response)
+                        headers = response_info.getHeaders()
+
+                        content_type = next((header.split(':', 1)[1].strip() for header in headers if header.lower().startswith('content-type:')), None)
+
+                        if content_type and 'javascript' in content_type.lower():
+                            body = response[response_info.getBodyOffset():]
+                            urls = self.extract_urls_from_js(body)
+                            if urls:
+                                _, endpoints_list = self.sort_urls_endpoints(urls)
+                                for endpoint in endpoints_list:
+                                    all_results += endpoint + "\n"
+
+        self.copy_results_to_clipboard(all_results)
+
+    def copy_results_to_clipboard(self, all_results):
+        if all_results:
+            clipboard = Toolkit.getDefaultToolkit().getSystemClipboard()
+            clipboard.setContents(StringSelection(all_results), None)
+            JOptionPane.showMessageDialog(None, "Results exported to clipboard.")
+        else:
+            JOptionPane.showMessageDialog(None, "No results found to export.")
+
 
     def export_results_to_clipboard(self, event):
         messages = self._invocation.getSelectedMessages()
@@ -122,7 +193,6 @@ class BurpExtender(IBurpExtender, IHttpListener, IScannerListener, IExtensionSta
         else:
             JOptionPane.showMessageDialog(None, "No results found to export.")
 
-
     def format_results(self, js_full_url, urls):
         urls_list, endpoints_list = self.sort_urls_endpoints(urls)
 
@@ -135,13 +205,6 @@ class BurpExtender(IBurpExtender, IHttpListener, IScannerListener, IExtensionSta
             formatted_results += endpoint + "\n"
 
         return formatted_results
-
-    def start_passive_crawl(self, event):
-        self._scanned_js_files.clear()
-        messages = self._invocation.getSelectedMessages()
-
-        for message in messages:
-            self.processHttpMessage(self._callbacks.TOOL_SUITE, False, message)
 
     def output_results(self, urls, js_full_url):
         urls_list, endpoints_list = self.sort_urls_endpoints(urls)

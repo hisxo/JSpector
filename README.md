@@ -21,10 +21,6 @@ Before installing JSpector, you need to have Jython installed on Burp Suite.
 ## Use
 
 - You just have to navigate on your different targets and JSpector will start working in the background by a simple passive crawl.
-- A contextual menu is also available if you want to force JSpector to crawl on some targets.
-
-![image](https://user-images.githubusercontent.com/16657045/227887645-d63649cc-1ad9-4cc6-9deb-021645595721.png)
-
 - You can export all the results to the clipboard (_URLs + endpoints_) with a right click directly on the JS file:
 
-![image](https://user-images.githubusercontent.com/16657045/230771800-1fd09744-94f3-4d66-aa5d-e77022c2797a.png)
+![image](https://user-images.githubusercontent.com/16657045/232149174-04d80248-93ff-42d7-8f0b-e0303b3bc289.png)
